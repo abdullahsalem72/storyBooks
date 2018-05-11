@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
+const path = require("path");
+const flash = require("connect-flash");
 
 // LOAD USER MODEL
 require("./models/User");
@@ -47,11 +49,17 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(flash());
 // SET GLOBAL VARIABLES (AFTER PASSPORT MIDDLEWARE)
 app.use((req, res, next) => {
   res.locals.user = req.user || null;
+  res.locals.success_msg = req.flash("success_msg");
+  res.locals.error_msg = req.flash("error_msg");
   next();
 });
+
+// Set Static folder
+app.use(express.static(path.join(__dirname, "public")));
 
 //SET ROUTES
 app.use("/", index);

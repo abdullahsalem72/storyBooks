@@ -1,7 +1,11 @@
 <nav class="grey darken-3">
     <div class="container">
         <div class="nav-wrapper">
-            <a href="/stories" class="brand-logo center">StoryBooks</a>
+            {{#if user}}
+                <a href="/stories" class="brand-logo center">StoryBooks</a>
+            {{else}}
+                <a href="/" class="brand-logo center">StoryBooks</a>
+            {{/if}}
             <a href="#" data-activates="main-menu"
                class="button-collapse show-on-large"><i class="fa fa-bars"></i></a>
             <!--RIGHT NAV-->
@@ -32,6 +36,7 @@
                     <li><a href="/stories/my"><i class="fa fa-user"></i> My Stories</a></li>
                     <li><a href="/auth/logout"><i class="fa fa-sign-out"></i> Logout</a></li>
                 {{/if}}
+                <li><a href="/about"><i class="fa fa-sign-out"></i> About</a></li>
 
 
             </ul>
