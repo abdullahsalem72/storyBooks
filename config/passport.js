@@ -3,6 +3,9 @@ const mongoose = require("mongoose");
 
 const keys = require("./keys");
 
+// Load Models
+const User = mongoose.model("users");
+
 module.exports = passport => {
   passport.use(
     new GoogleStrategy(
@@ -13,9 +16,41 @@ module.exports = passport => {
         proxy: true
       },
       (accesssToken, refreshToken, profile, done) => {
-        console.log(accesssToken);
-        console.log(profile);
+        // console.log(accesssToken);
+        // console.log(profile);
+        const image = profile.photos[0].value.substring(
+          0,
+          profile.photos[0].value.indexOf("?")
+        );
+        console.log(image);
+
+        const newUser = {
+          googleID: profile.id,
+          firstName: profile.name.givenName,
+          lastName: profile.name.familyName,
+          email: profile.emails[0].value,
+          image: image
+        };
+
+        // Check if Exists
+        User.findOne({
+          googleID: profile.id
+        }).then(user => {
+          if (user) {
+            //Return user without creating  duplicate
+            done(null, user);
+          } else {
+            // Create User
+            new User(newUser).save().then(user => done(null, user));
+          }
+        });
       }
     )
   );
+  passport.serializeUser((user, done) => {
+    done(null, user.id);
+  });
+  passport.deserializeUser((id, done) => {
+    User.findById(id).then(user => done(null, user));
+  });
 };
