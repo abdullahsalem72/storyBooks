@@ -12,8 +12,8 @@ require("./models/User");
 require("./config/passport")(passport);
 
 // LOAD ROUTES
-const auth = require("./routes/auth");
 const index = require("./routes/index");
+const auth = require("./routes/auth");
 
 // LOAD KEYS
 const keys = require("./config/keys");
@@ -42,20 +42,19 @@ app.use(
   })
 );
 
-// SET GLOBAL VARIABLES
-app.use((req, res, next) => {
-    res.locals.user = req.user || null;
-    next();
-});
-
 // PASSPORT MIDDLEWARE
 app.use(passport.initialize());
 app.use(passport.session());
 
-//SET ROUTES
-app.use("/auth", auth);
-app.use("/", index);
+// SET GLOBAL VARIABLES (AFTER PASSPORT MIDDLEWARE)
+app.use((req, res, next) => {
+  res.locals.user = req.user || null;
+  next();
+});
 
+//SET ROUTES
+app.use("/", index);
+app.use("/auth", auth);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
