@@ -6,9 +6,12 @@ const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const path = require("path");
 const flash = require("connect-flash");
+const bodyParser = require("body-parser");
+const methodOverride = require("method-override");
 
-// LOAD USER MODEL
+// LOAD  MODELS
 require("./models/User");
+require("./models/Story");
 
 // PASSPORT CONFIG
 require("./config/passport")(passport);
@@ -21,6 +24,15 @@ const stories = require("./routes/stories");
 // LOAD KEYS
 const keys = require("./config/keys");
 
+// HANDLEBAR HELPERS
+const {
+  truncate,
+  stripTags,
+  formatDate,
+  select,
+  editIcon
+} = require("./helpers/hbs");
+
 // MONGOOSE CONNECT
 mongoose
   .connect(keys.mongoURI)
@@ -30,8 +42,28 @@ mongoose
 const app = express();
 
 // EXPRESS-HANDLEBARS MIDDLEWARE SETUP
-app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.engine(
+  "handlebars",
+  exphbs({
+    helpers: {
+      truncate: truncate,
+      stripTags: stripTags,
+      formatDate: formatDate,
+      select: select,
+      editIcon: editIcon
+    },
+    defaultLayout: "main"
+  })
+);
 app.set("view engine", "handlebars");
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+// parse application/json
+app.use(bodyParser.json());
+
+// override with POST having ?_method=DELETE
+app.use(methodOverride("_method"));
 
 // COOKIE PARSER MIDDLEWARE
 app.use(cookieParser());
